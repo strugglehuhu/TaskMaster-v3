@@ -1,8 +1,3 @@
-Perfect — here’s a **ready-to-drop README.md** for your GitHub repo.
-I’ll include install/run instructions, grading highlights, screenshots placeholders, and portfolio polish.
-
----
-
 ## 📄 `README.md`
 
 ```markdown
@@ -98,7 +93,6 @@ Open [http://127.0.0.1:5000](http://127.0.0.1:5000) in your browser.
 
 ## 📸 Screenshots
 
-> *(Add screenshots of your app running)*
 <img width="1055" height="893" alt="image" src="https://github.com/user-attachments/assets/01f3c8e5-76ca-4cb7-bbad-b36be0cfa6cd" />
 
 * Home Screen
