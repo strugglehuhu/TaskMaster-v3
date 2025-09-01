@@ -99,50 +99,11 @@ Open [http://127.0.0.1:5000](http://127.0.0.1:5000) in your browser.
 ## 📸 Screenshots
 
 > *(Add screenshots of your app running)*
+<img width="1055" height="893" alt="image" src="https://github.com/user-attachments/assets/01f3c8e5-76ca-4cb7-bbad-b36be0cfa6cd" />
 
 * Home Screen
-  ![Home Screen](docs/screens/home.png)
-
 * Chatbot in Action
-  ![Chat](docs/screens/chat.png)
+
 
 ---
 
-## 📊 Grading Criteria (Capstone Rubric)
-
-✅ **100 / 100 Points**
-
-* **Phase 1**: API + UI/UX + Chatbot tools fully designed
-* **Phase 2**: Backend & frontend implemented, clean separation of concerns
-* **Phase 3**: AI chatbot integrated, Johnny persona, Dev Mode JSON debug
-* **Phase 4**: Code review, style polish, performance optimizations
-
----
-
-## 📦 Deployment
-
-You can deploy with:
-
-* **Render** (free tier Flask hosting)
-* **Railway / Fly.io / Heroku**
-* **GitHub Pages (frontend only)** + Render (backend)
-
----
-
-## 🙌 Credits
-
-Built by \[Your Name] as a **Final AI Challenge Capstone Project**.
-Powered by **Flask, OpenAI, Vanilla JS**, and too much *Samurai* attitude.
-
-```
-
----
-
-👉 You just need to:  
-1. Replace `yourusername` in the `git clone` link.  
-2. Add screenshots in `docs/screens/`.  
-
----
-
-Want me to also generate a **docs/screenshots checklist** (like what specific screens to capture for your README/demo)?
-```
