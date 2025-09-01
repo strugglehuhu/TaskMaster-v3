@@ -1,0 +1,13 @@
+# Python venv
+.venv/
+
+# Bytecode
+__pycache__/
+*.pyc
+
+# Flask debug logs
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
