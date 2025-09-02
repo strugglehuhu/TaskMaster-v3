@@ -9,7 +9,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 SYSTEM = "Return ONLY this JSON exactly: {\"ok\": true}"
 
 resp = client.chat.completions.create(
-    model="gpt-4o-mini",  # switch to a model you have access to
+    model="gpt-3.5-turbo",  # switch to a model you have access to
     messages=[
         {"role": "system", "content": SYSTEM},
         {"role": "user", "content": "hi"}
