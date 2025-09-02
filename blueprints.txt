@@ -1,0 +1,148 @@
+
+# Phase 1 — System Design & Architecture
+
+## Prompt 1 — Backend API (paste to an AI if you want it to re-generate)
+
+> **Role:** Senior backend developer
+> **Prompt:**
+> “Design a simple REST API for a To-Do List application using Python Flask.
+> Define 4 endpoints: add task, view tasks, complete task, delete task.
+> For each endpoint, specify HTTP method, URL path, expected JSON request payload, and an example JSON response with status code.
+> Constraints: Tasks are objects `{id:int, description:string, completed:boolean}`. Use consistent naming. Keep it implementable with an in-memory list.”
+
+### API Specification
+
+#### Resource shape
+
+```json
+{
+  "id": 1,
+  "description": "buy milk",
+  "completed": false
+}
+```
+
+### Endpoints (Markdown table)
+
+| Operation       | Method | Path                       | Request JSON (example)          | Success Response (example)                                                            | Status |
+| --------------- | ------ | -------------------------- | ------------------------------- | ------------------------------------------------------------------------------------- | ------ |
+| View all tasks  | GET    | `/api/tasks`               | *none*                          | `[{ "id":1, "description":"buy milk", "completed":false }]`                           | 200    |
+| Add a task      | POST   | `/api/tasks`               | `{ "description": "buy milk" }` | `{ "id":2, "description":"buy milk", "completed":false }`                             | 201    |
+| Complete a task | PATCH  | `/api/tasks/{id}/complete` | *none*                          | `{ "id":2, "description":"buy milk", "completed":true }`                              | 200    |
+| Delete a task   | DELETE | `/api/tasks/{id}`          | *none*                          | `{ "id":2, "description":"buy milk", "completed":true }` (or the deleted task object) | 200    |
+
+#### Error model (consistent across endpoints)
+
+```json
+{ "ok": false, "error": "Task not found." }
+```
+
+Typical error codes: **400** invalid input, **404** not found, **500** server error.
+
+---
+
+## Prompt 2 — Frontend Design Brief (paste to an AI if you want it to re-generate)
+
+> **Role:** UI/UX designer
+> **Prompt:**
+> “Create a simple, clean, and modern design brief for a single-page To-Do List web app. Describe layout, key UI components (task input, buttons, list items with checkbox + delete), user interaction flow (add, complete, delete), and styling notes (modern, minimal, mobile-friendly, accessible). Return as a structured outline.”
+
+### UI/UX Design Brief
+
+**Layout**
+
+* **Header:** App title (e.g., “TaskMaster”), small subtitle/count.
+* **Input Row:** Text input (placeholder: “Add a task…”), primary “Add” button.
+* **Task List:** Vertical list of items; each row has a checkbox (complete), description text, and a Delete button.
+* **(Optional) Chat Panel:** Input + Send button; messages area (for AI assistant).
+* **Footer (optional):** Minimal credits or links.
+
+**Key Components**
+
+* **Task Input:** Single-line text field, `Enter` adds task.
+* **Add Button:** Prominent, disabled when input empty.
+* **Task Item:**
+
+  * Checkbox (marks complete, then disables).
+  * Description (line-through + muted color when completed).
+  * Delete button (secondary/destructive).
+* **Empty State:** “No tasks yet — add your first one!”
+
+**Interaction Flow**
+
+1. **Add:** User types description → clicks **Add** (or presses **Enter**) → POST `/api/tasks` → prepend/refresh list.
+2. **Complete:** Click checkbox → PATCH `/api/tasks/{id}/complete` → update row state.
+3. **Delete:** Click delete → DELETE `/api/tasks/{id}` → remove row.
+4. **AI (optional):** User types plain English (e.g., “add buy milk”) → app calls `/api/ai` → UI applies returned action(s).
+
+**Styling & Accessibility**
+
+* Modern, minimal, high contrast on a dark theme.
+* Large click targets (44px min), clear focus states, keyboard accessible.
+* Mobile-first: stack layout; input and buttons 100% width on narrow screens.
+* Use semantic HTML where possible (`button`, `ul/li`, `label`).
+
+---
+
+## Prompt 3 — Chatbot Tools / Function Calling (paste to an AI if you want it to re-generate)
+
+> **Role:** AI engineer
+> **Prompt:**
+> “Define the function calls (‘tools’) the chatbot needs to manage the To-Do app. Cover add, view, complete, delete. For each: function name, parameters with types, and an example call. Parameters must match the API spec names. Return in a copy-friendly block.”
+
+### Chatbot Function Definitions
+
+```ts
+// 1) Add task
+function addTask(description: string)
+// Example:
+{ "function": "addTask", "parameters": { "description": "buy milk" } }
+
+// 2) View tasks
+function viewTasks()
+// Example:
+{ "function": "viewTasks", "parameters": {} }
+
+// 3) Complete task
+function completeTask(task_id: number)
+// Example:
+{ "function": "completeTask", "parameters": { "task_id": 2 } }
+
+// 4) Delete task
+function deleteTask(task_id: number)
+// Example:
+{ "function": "deleteTask", "parameters": { "task_id": 3 } }
+```
+
+**Notes**
+
+* `description` is required for `addTask` and must be a non-empty string.
+* `task_id` is a positive integer referencing an existing task.
+* The assistant must return **only** JSON in this schema to keep the integration deterministic.
+
+---
+
+## (Optional) Master System Prompt (for Phase 3 later)
+
+You can reuse this later:
+
+```
+You are an AI assistant for a To-Do List app. Output ONLY a single JSON object describing the function call:
+
+Allowed:
+- addTask(description: string)
+- viewTasks()
+- completeTask(task_id: int)
+- deleteTask(task_id: int)
+
+Rules:
+1) Return ONLY: {"function": string, "parameters": object}
+2) Map intents (add/show/complete/delete) correctly.
+3) Parse numbers and ordinals ("third"→3).
+4) For addTask include the description (strip surrounding quotes).
+5) If unclear, default to viewTasks.
+```
+
+---
+
+
