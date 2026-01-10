@@ -10,16 +10,16 @@ USE_CORS = os.getenv("USE_CORS", "0") == "1"
 if USE_CORS:
     from flask_cors import CORS  # type: ignore
 
-# OpenAI client
+# Gemini client
 try:
-    from openai import OpenAI
+    import google.generativeai as genai
 except Exception:
-    OpenAI = None
+    genai = None
 
 load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
-OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0"))
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_TEMPERATURE = float(os.getenv("GEMINI_TEMPERATURE", "0"))
 
 app = Flask(__name__)
 if USE_CORS:
@@ -120,14 +120,15 @@ def robust_json_parse(s: str) -> dict:
     raise ValueError("Model did not return valid JSON.")
 
 _client: Any = None
-def get_openai_client() -> Any:
+def get_gemini_client() -> Any:
     global _client
     if _client is None:
-        if OpenAI is None:
-            raise RuntimeError("openai package not installed.")
-        if not OPENAI_API_KEY:
-            raise RuntimeError("OPENAI_API_KEY missing (set it in .env).")
-        _client = OpenAI(api_key=OPENAI_API_KEY)
+        if genai is None:
+            raise RuntimeError("google-generativeai package not installed.")
+        if not GEMINI_API_KEY:
+            raise RuntimeError("GEMINI_API_KEY missing (set it in .env).")
+        genai.configure(api_key=GEMINI_API_KEY)
+        _client = genai.GenerativeModel(GEMINI_MODEL)
     return _client
 
 @app.post("/api/ai")
@@ -138,14 +139,19 @@ def ai_route():
         return api_error("text required", 400)
 
     try:
-        client = get_openai_client()
-        completion = client.chat.completions.create(
-            model=OPENAI_MODEL,
-            messages=[{"role": "system", "content": SYSTEM_PROMPT},
-                      {"role": "user", "content": text}],
-            temperature=OPENAI_TEMPERATURE,
+        client = get_gemini_client()
+        # Gemini uses system instruction parameter instead of system role
+        # Some versions of the google.generativeai client do not accept
+        # a `system_instruction` keyword. Prepend the system prompt to the
+        # user contents so the model still receives the instruction.
+        prompt_with_system = SYSTEM_PROMPT.strip() + "\n\n" + text
+        response = client.generate_content(
+            contents=prompt_with_system,
+            generation_config=genai.types.GenerationConfig(
+                temperature=GEMINI_TEMPERATURE,
+            ),
         )
-        content = completion.choices[0].message.content
+        content = response.text
         call = robust_json_parse(content or "")
     except Exception as e:
         log.error("AI error: %s", e)
